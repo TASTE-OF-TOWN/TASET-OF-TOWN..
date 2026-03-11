@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taste Of Town</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:#111;
+color:white;
+}
+
+header{
+background:#2c1b0f;
+padding:15px;
+text-align:center;
+}
+
+header h1{
+margin:0;
+color:#ffb347;
+}
+
+.category{
+padding:10px;
+font-size:22px;
+color:#ffb347;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+gap:12px;
+padding:12px;
+}
+
+.card{
+background:#1f1f1f;
+border-radius:10px;
+overflow:hidden;
+}
+
+.card img{
+width:100%;
+height:130px;
+object-fit:cover;
+}
+
+.card h3{
+padding:8px;
+font-size:15px;
+}
+
+.price{
+padding:0 8px;
+color:#ffb347;
+}
+
+.card button{
+margin:8px;
+width:calc(100% - 16px);
+background:#ffb347;
+border:none;
+padding:8px;
+border-radius:6px;
+cursor:pointer;
+}
+
+.floatingCart{
+position:fixed;
+bottom:20px;
+right:20px;
+background:#ffb347;
+color:black;
+padding:14px 18px;
+border-radius:50px;
+font-size:20px;
+cursor:pointer;
+box-shadow:0 5px 15px rgba(0,0,0,0.4);
+}
+
+#cartCount{
+background:red;
+color:white;
+border-radius:50%;
+padding:3px 8px;
+font-size:14px;
+margin-left:5px;
+}
+
+#cartPanel{
+position:fixed;
+right:-100%;
+top:0;
+width:320px;
+height:100%;
+background:#1c1c1c;
+padding:15px;
+transition:0.4s;
+overflow:auto;
+}
+
+.cartItem{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:10px;
+}
+
+.qty button{
+background:#444;
+border:none;
+color:white;
+padding:3px 8px;
+}
+
+.orderBtn{
+width:100%;
+background:#25D366;
+border:none;
+padding:12px;
+border-radius:6px;
+color:white;
+font-size:16px;
+margin-top:10px;
+cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>Taste Of Town</h1>
+</header>
+
+<div id="menu"></div>
+
+<div class="floatingCart" onclick="toggleCart()">
+🛒 <span id="cartCount">0</span>
+</div>
+
+<div id="cartPanel">
+
+<h2>Your Cart</h2>
+
+<div id="cartItems"></div>
+
+<h3>Total ₹ <span id="total">0</span></h3>
+
+<p>Delivery ₹50</p>
+
+<button class="orderBtn" onclick="sendOrder()">Order on WhatsApp</button>
+
+</div>
+
+<script>
+
+const owner="917696218152"
+const delivery=50
+
+let cart={}
+let total=0
+
+const menuData={
+
+Burgers:[
+["Aloo Tikki Burger",40,"https://images.unsplash.com/photo-1550547660-d9450f859349"],
+["Paneer Zinger Burger",70,"https://images.unsplash.com/photo-1568901346375-23c9450c58cd"],
+["Veg Special Burger",80,"https://images.unsplash.com/photo-1550317138-10000687a72b"]
+],
+
+Pizza:[
+["Margherita Pizza",170,"https://images.unsplash.com/photo-1604382355076-af4b0eb60143"],
+["Paneer Pizza",350,"https://images.unsplash.com/photo-1548365328-9f547fb0953d"]
+],
+
+Fries:[
+["Classic Fries",100,"https://images.unsplash.com/photo-1541592106381-b31e9677c0e5"],
+["Peri Peri Fries",120,"https://images.unsplash.com/photo-1585238342024-78d387f4a707"]
+],
+
+Coffee:[
+["Hot Coffee",50,"https://images.unsplash.com/photo-1509042239860-f550ce710b93"],
+["Cold Coffee",80,"https://images.unsplash.com/photo-1511920170033-f8396924c348"]
+]
+
+}
+
+function loadMenu(){
+
+let menu=document.getElementById("menu")
+
+menu.innerHTML=""
+
+for(let cat in menuData){
+
+menu.innerHTML+=`<div class="category">${cat}</div><div class="grid">`
+
+menuData[cat].forEach(item=>{
+
+menu.innerHTML+=`
+
+<div class="card">
+
+<img src="${item[2]}">
+
+<h3>${item[0]}</h3>
+
+<p class="price">₹${item[1]}</p>
+
+<button onclick="add('${item[0]}',${item[1]})">Add to Cart</button>
+
+</div>
+
+`
+
+})
+
+menu.innerHTML+="</div>"
+
+}
+
+}
+
+function toggleCart(){
+
+let cartPanel=document.getElementById("cartPanel")
+
+cartPanel.style.right=cartPanel.style.right==="0px"?"-100%":"0"
+
+}
+
+function add(name,price){
+
+if(!cart[name]) cart[name]={price:price,qty:1}
+else cart[name].qty++
+
+updateCart()
+
+}
+
+function updateCart(){
+
+let html=""
+total=0
+let count=0
+
+for(let item in cart){
+
+let p=cart[item].price
+let q=cart[item].qty
+
+total+=p*q
+count+=q
+
+html+=`
+
+<div class="cartItem">
+
+${item}
+
+<div class="qty">
+
+<button onclick="change('${item}',-1)">-</button>
+
+${q}
+
+<button onclick="change('${item}',1)">+</button>
+
+</div>
+
+<span>₹${p*q}</span>
+
+</div>
+
+`
+
+}
+
+let grand=total+delivery
+
+document.getElementById("cartItems").innerHTML=html
+document.getElementById("total").innerText=grand
+document.getElementById("cartCount").innerText=count
+
+}
+
+function change(name,val){
+
+cart[name].qty+=val
+
+if(cart[name].qty<=0) delete cart[name]
+
+updateCart()
+
+}
+
+function sendOrder(){
+
+if(Object.keys(cart).length===0){
+alert("Cart is empty")
+return
+}
+
+let grand=total+delivery
+
+function openWhatsApp(lat="",lon=""){
+
+let msg="Taste Of Town Order\n\n"
+
+for(let item in cart){
+msg+=item+" x"+cart[item].qty+"\n"
+}
+
+msg+="\nFood Total ₹"+total
+msg+="\nDelivery ₹"+delivery
+msg+="\nGrand Total ₹"+grand
+
+if(lat!=""){
+msg+="\n\nLocation: https://maps.google.com/?q="+lat+","+lon
+}
+
+let url="https://api.whatsapp.com/send?phone="+owner+"&text="+encodeURIComponent(msg)
+
+window.open(url,"_blank")
+
+}
+
+if(navigator.geolocation){
+
+navigator.geolocation.getCurrentPosition(
+
+pos=>openWhatsApp(pos.coords.latitude,pos.coords.longitude),
+
+()=>openWhatsApp()
+
+)
+
+}else{
+
+openWhatsApp()
+
+}
+
+}
+
+loadMenu()
+
+</script>
+
+</body>
+</html>
