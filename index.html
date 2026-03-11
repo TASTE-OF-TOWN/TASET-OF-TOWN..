@@ -24,7 +24,7 @@ margin:0;
 color:#ffb347;
 }
 
-.category{
+.sectionTitle{
 padding:10px;
 font-size:22px;
 color:#ffb347;
@@ -151,7 +151,6 @@ cursor:pointer;
 <div id="cartItems"></div>
 
 <h3>Total ₹ <span id="total">0</span></h3>
-
 <p>Delivery ₹50</p>
 
 <button class="orderBtn" onclick="sendOrder()">Order on WhatsApp</button>
@@ -168,25 +167,55 @@ let total=0
 
 const menuData={
 
+Fries:[
+["Classic Fries",100,"https://source.unsplash.com/400x300/?fries"],
+["Cheesy Fries",110,"https://source.unsplash.com/400x300/?cheese-fries"],
+["Peri Peri Fries",120,"https://source.unsplash.com/400x300/?peri-peri-fries"]
+],
+
 Burgers:[
-["Aloo Tikki Burger",40,"https://images.unsplash.com/photo-1550547660-d9450f859349"],
-["Paneer Zinger Burger",70,"https://images.unsplash.com/photo-1568901346375-23c9450c58cd"],
-["Veg Special Burger",80,"https://images.unsplash.com/photo-1550317138-10000687a72b"]
+["Aloo Tikki Burger",40,"https://source.unsplash.com/400x300/?burger"],
+["Paneer Zinger Burger",70,"https://source.unsplash.com/400x300/?paneer-burger"],
+["Veg Special Burger",80,"https://source.unsplash.com/400x300/?veg-burger"]
+],
+
+Sandwich:[
+["Cold Sandwich",60,"https://source.unsplash.com/400x300/?sandwich"],
+["Grilled Sandwich",70,"https://source.unsplash.com/400x300/?grilled-sandwich"],
+["Cheesy Sandwich",90,"https://source.unsplash.com/400x300/?cheese-sandwich"]
+],
+
+Rolls:[
+["Cheese Roll",60,"https://source.unsplash.com/400x300/?roll"],
+["Mix Veg Roll",70,"https://source.unsplash.com/400x300/?veg-roll"],
+["Paneer Roll",90,"https://source.unsplash.com/400x300/?paneer-roll"]
 ],
 
 Pizza:[
-["Margherita Pizza",170,"https://images.unsplash.com/photo-1604382355076-af4b0eb60143"],
-["Paneer Pizza",350,"https://images.unsplash.com/photo-1548365328-9f547fb0953d"]
-],
-
-Fries:[
-["Classic Fries",100,"https://images.unsplash.com/photo-1541592106381-b31e9677c0e5"],
-["Peri Peri Fries",120,"https://images.unsplash.com/photo-1585238342024-78d387f4a707"]
+["Margherita Pizza",170,"https://source.unsplash.com/400x300/?pizza"],
+["Golden Corn Pizza",200,"https://source.unsplash.com/400x300/?corn-pizza"],
+["Paneer Pizza",350,"https://source.unsplash.com/400x300/?paneer-pizza"]
 ],
 
 Coffee:[
-["Hot Coffee",50,"https://images.unsplash.com/photo-1509042239860-f550ce710b93"],
-["Cold Coffee",80,"https://images.unsplash.com/photo-1511920170033-f8396924c348"]
+["Hot Coffee",50,"https://source.unsplash.com/400x300/?coffee"],
+["Cold Coffee",80,"https://source.unsplash.com/400x300/?cold-coffee"]
+],
+
+Shakes:[
+["Chocolate Shake",80,"https://source.unsplash.com/400x300/?chocolate-milkshake"],
+["Oreo Shake",80,"https://source.unsplash.com/400x300/?oreo-milkshake"],
+["Mango Shake",80,"https://source.unsplash.com/400x300/?mango-milkshake"]
+],
+
+IceTea:[
+["Lemon Ice Tea",70,"https://source.unsplash.com/400x300/?iced-tea"],
+["Peach Ice Tea",70,"https://source.unsplash.com/400x300/?peach-iced-tea"]
+],
+
+Mocktails:[
+["Mint Mojito",70,"https://source.unsplash.com/400x300/?mojito"],
+["Blueberry Mocktail",70,"https://source.unsplash.com/400x300/?blue-mocktail"]
 ]
 
 }
@@ -197,11 +226,11 @@ let menu=document.getElementById("menu")
 
 menu.innerHTML=""
 
-for(let cat in menuData){
+for(let section in menuData){
 
-menu.innerHTML+=`<div class="category">${cat}</div><div class="grid">`
+menu.innerHTML+=`<div class="sectionTitle">${section}</div><div class="grid">`
 
-menuData[cat].forEach(item=>{
+menuData[section].forEach(item=>{
 
 menu.innerHTML+=`
 
@@ -309,7 +338,10 @@ return
 
 let grand=total+delivery
 
-function openWhatsApp(lat="",lon=""){
+navigator.geolocation.getCurrentPosition(function(pos){
+
+let lat=pos.coords.latitude
+let lon=pos.coords.longitude
 
 let msg="Taste Of Town Order\n\n"
 
@@ -321,31 +353,13 @@ msg+="\nFood Total ₹"+total
 msg+="\nDelivery ₹"+delivery
 msg+="\nGrand Total ₹"+grand
 
-if(lat!=""){
 msg+="\n\nLocation: https://maps.google.com/?q="+lat+","+lon
-}
 
 let url="https://api.whatsapp.com/send?phone="+owner+"&text="+encodeURIComponent(msg)
 
 window.open(url,"_blank")
 
-}
-
-if(navigator.geolocation){
-
-navigator.geolocation.getCurrentPosition(
-
-pos=>openWhatsApp(pos.coords.latitude,pos.coords.longitude),
-
-()=>openWhatsApp()
-
-)
-
-}else{
-
-openWhatsApp()
-
-}
+})
 
 }
 
